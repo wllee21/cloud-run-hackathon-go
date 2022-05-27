@@ -66,53 +66,75 @@ func getfacingMe(me PlayerState, enemy PlayerState) (result string) {
 	return "N"
 }
 
-func escape(input ArenaUpdate, me PlayerState, dir string) (res string){
-	var commands = []string{"R", "L"}
+func getDir(input ArenaUpdate, me PlayerState, defaultResponse string) (res string) {
+	switch me.Direction {
+	case "N":
+		if me.Y==0 {
+			if me.X==0 {
+				return "R"
+			} else if me.X==input.Arena.Dimensions[0]-1 {
+				return "L"
+			}
+		}
+		break
+	case "S":
+		if me.Y==input.Arena.Dimensions[1]-1 {
+			if me.X==0 {
+				return "L"
+			} else if me.X==input.Arena.Dimensions[0]-1 {
+				return "R"
+			}
+		}
+		break
+	case "E":
+		if me.X==input.Arena.Dimensions[1]-1 {
+			if me.Y==0 {
+				return "R"
+			} else if me.Y==input.Arena.Dimensions[1]-1 {
+				return "L"
+			}
+		}
+		break
+	case "W":
+		if me.X==0 {
+			if me.Y==0 {
+				return "L"
+			} else if me.Y==input.Arena.Dimensions[1]-1 {
+				return "R"
+			}
+		}
+		break
+	}
+	return defaultResponse
+}
+
+func escape(input ArenaUpdate, me PlayerState, dir string) (res string) {
 	switch dir {
 	case "X":
 		switch me.Direction {
 		case "N":
-			if me.X==0 {
-				return "R"
-			} else if me.X==input.Arena.Dimensions[0] {
-				return "L"
-			}
-			return commands[rand2.Intn(2)]
 		case "S":
-			if me.X==0 {
-				return "L"
-			} else if me.X==input.Arena.Dimensions[0] {
-				return "R"
-			}
-			return commands[rand2.Intn(2)]
+			return getDir(input, me, getRandRL())
 		}
 		break
 	case "Y":
 		switch me.Direction {
 		case "E":
-			if me.Y==0 {
-				return "R"
-			} else if me.Y==input.Arena.Dimensions[1] {
-				return "L"
-			}
-			return commands[rand2.Intn(2)]
 		case "W":
-			if me.Y==0 {
-				return "L"
-			} else if me.Y==input.Arena.Dimensions[1] {
-				return "R"
-			}
-			return commands[rand2.Intn(2)]
+			return getDir(input, me, getRandRL())
 		}
 		break
 	}
-	return "F"
+	return getDir(input, me, "F")
+}
+
+func getRandRL() (response string) {
+	var commands = []string{"R", "L"}
+	return commands[rand2.Intn(2)]
 }
 
 func play(input ArenaUpdate) (response string) {
 	log.Printf("IN: %#v", input)
-
-	dir := []string{"X", "Y"}
 
 	var me =  input.Arena.State[input.Links.Self.Href]
 	delete(input.Arena.State, input.Links.Self.Href)
@@ -130,5 +152,5 @@ func play(input ArenaUpdate) (response string) {
 		} 
 	}
 
-	return escape(input, me, dir[rand2.Intn(2)])
+	return getDir(input, me, getRandRL())
 }
