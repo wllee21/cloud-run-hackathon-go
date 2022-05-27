@@ -46,27 +46,37 @@ func getRandRL() (response string) {
 	return commands[rand2.Intn(2)]
 }
 
+func getfacingMeX(me PlayerState, enemy PlayerState) (result string) {
+	if me.Y > enemy.Y {
+		if enemy.Direction == "S" {
+			return "X"
+		}
+	} else {
+		if enemy.Direction == "N" {
+			return "X"
+		}
+	}
+	return "N"
+}
+
+func getfacingMeY(me PlayerState, enemy PlayerState) (result string) {
+	if me.X > enemy.X {
+		if enemy.Direction == "E" {
+			return "Y"
+		}
+	} else {
+		if enemy.Direction == "W" {
+			return "Y"
+		}
+	}
+	return "N"
+}
+
 func getfacingMe(me PlayerState, enemy PlayerState) (result string) {
 	if me.X == enemy.X {
-		if me.Y > enemy.Y {
-			if enemy.Direction == "S" {
-				return "X"
-			}
-		} else {
-			if enemy.Direction == "N" {
-				return "X"
-			}
-		}
+		return getfacingMeY(me, enemy)
 	} else if me.Y == enemy.Y {
-		if me.X > enemy.X {
-			if enemy.Direction == "E" {
-				return "Y"
-			}
-		} else {
-			if enemy.Direction == "W" {
-				return "Y"
-			}
-		}
+		return getfacingMeX(me, enemy)
 	}
 	return "N"
 }
@@ -152,16 +162,19 @@ func play(input ArenaUpdate) (response string) {
 	}
 
 	for k, v := range input.Arena.State {
-		if getfacingMe(v, me) != "N" {
-			return "T"
-		}
 		if v.X == me.X {
+			if getfacingMeX(v, me) != "N" {
+				return "T"
+			}
 			if v.Y < me.Y {
 				mapN[k] = v
 			} else {
 				mapS[k] = v
 			}
 		} else if v.Y == me.Y {
+			if getfacingMeY(v, me) != "N" {
+				return "T"
+			}
 			if v.X < me.X {
 				mapW[k] = v
 			} else {
@@ -171,13 +184,13 @@ func play(input ArenaUpdate) (response string) {
 	}
 
 	for _, v := range mapN {
-		var enemyFacingMe = getfacingMe(me, v)
+		var enemyFacingMe = getfacingMeY(me, v)
 		if enemyFacingMe != "N" {
 			return escape(input, me, enemyFacingMe)
 		}
 	}
 	for _, v := range mapS {
-		var enemyFacingMe = getfacingMe(me, v)
+		var enemyFacingMe = getfacingMeY(me, v)
 		if enemyFacingMe != "N" {
 			return escape(input, me, enemyFacingMe)
 		}
