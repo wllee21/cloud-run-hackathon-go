@@ -74,9 +74,9 @@ func getfacingMeY(me PlayerState, enemy PlayerState) (result string) {
 
 func getfacingMe(me PlayerState, enemy PlayerState) (result string) {
 	if me.X == enemy.X {
-		return getfacingMeY(me, enemy)
-	} else if me.Y == enemy.Y {
 		return getfacingMeX(me, enemy)
+	} else if me.Y == enemy.Y {
+		return getfacingMeY(me, enemy)
 	}
 	return "N"
 }
@@ -90,6 +90,7 @@ func getDir(input ArenaUpdate, me PlayerState, defaultResponse string) (res stri
 			} else if me.X == input.Arena.Dimensions[0]-1 {
 				return "L"
 			}
+			return getRandRL()
 		}
 		break
 	case "S":
@@ -99,15 +100,17 @@ func getDir(input ArenaUpdate, me PlayerState, defaultResponse string) (res stri
 			} else if me.X == input.Arena.Dimensions[0]-1 {
 				return "R"
 			}
+			return getRandRL()
 		}
 		break
 	case "E":
-		if me.X == input.Arena.Dimensions[1]-1 {
+		if me.X == input.Arena.Dimensions[0]-1 {
 			if me.Y == 0 {
 				return "R"
 			} else if me.Y == input.Arena.Dimensions[1]-1 {
 				return "L"
 			}
+			return getRandRL()
 		}
 		break
 	case "W":
@@ -117,6 +120,7 @@ func getDir(input ArenaUpdate, me PlayerState, defaultResponse string) (res stri
 			} else if me.Y == input.Arena.Dimensions[1]-1 {
 				return "R"
 			}
+			return getRandRL()
 		}
 		break
 	}
@@ -127,15 +131,13 @@ func escape(input ArenaUpdate, me PlayerState, dir string) (res string) {
 	switch dir {
 	case "X":
 		switch me.Direction {
-		case "N":
-		case "S":
+		case "N", "S":
 			return getDir(input, me, getRandRL())
 		}
 		break
 	case "Y":
 		switch me.Direction {
-		case "E":
-		case "W":
+		case "E", "W":
 			return getDir(input, me, getRandRL())
 		}
 		break
